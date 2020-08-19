@@ -72,7 +72,7 @@ class GraphFrame(tk.Frame):
         time_label = ttk.Label(time_frm, text="Time/Div: ")
         self.time_choice = tk.Label(time_frm, textvariable=self.time_text,
                                     width=5, fg="white")
-        self.time_choice.config(bg="green")
+        self.time_choice.config(bg="red")
         time_button = tk.Button(time_frm, text="Change Resolution",
             command=self.to_uwester)
         time_label.grid(row = 0, column = 0, padx=5, pady=5)

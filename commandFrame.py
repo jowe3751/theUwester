@@ -14,7 +14,7 @@ class CommandFrame(tk.Frame):
         self.freq_val_3 = tk.IntVar()
         self.freq_value_label = tk.Label(self, fg="white")
         self.freq_value_label.config(text = "1000 Hz")
-        self.freq_value_label.config(bg="green")
+        self.freq_value_label.config(bg="red")
         freq_label_1 = ttk.Label(self, text="Frequency (1000):")
         freq_label_2 = ttk.Label(self, text="Frequency (100):")
         freq_label_3 = ttk.Label(self, text="Frequency (1):")

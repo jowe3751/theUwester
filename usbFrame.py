@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from settings import s
 import serial.tools.list_ports as lp
+import time
 
 class USBFrame(tk.Frame):
     def __init__(self, parent):
@@ -34,10 +35,10 @@ class USBFrame(tk.Frame):
         index = self.listbox_usb.curselection()[0] # a tuple is returned
         serial_port = self.file_list[index]
         print("You have selected: " + serial_port.device)
-        self.labelText.set(serial_port.device)
         try:
             s.port = serial_port.device
             s.open()
+            self.labelText.set(serial_port.device)
         except:
             # Indicate that something went wrong
             # Label is now shown (in red)

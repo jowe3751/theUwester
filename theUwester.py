@@ -51,6 +51,15 @@ class App(tk.Tk):
         while not s.is_open:
             time.sleep(0.1)
 
+        # Toggle needed because of reasons on OS X - Yosemite
+        s.close()
+        s.open()
+
+        # Init time/div to 1ms
+        self.graph.to_uwester()
+        # Init frequency to 1kHz
+        self.cmd.to_uwester()
+
         # remove potential stuff in buffer
         s.reset_input_buffer()
 
