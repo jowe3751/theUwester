@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from settings import s
 import serial.tools.list_ports as lp
-import time
 
 class USBFrame(tk.Frame):
     def __init__(self, parent):
