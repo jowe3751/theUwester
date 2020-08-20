@@ -202,6 +202,7 @@ class GraphFrame(tk.Frame):
             self.firstClick = True
 
     def to_uwester(self):
+        self.time_choice.config(bg="red")
         self.increment = 1
         period_to_send = self.periods[self.period_index]
         # if less than 50us

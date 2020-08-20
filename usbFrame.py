@@ -8,6 +8,7 @@ class USBFrame(tk.Frame):
         super().__init__(parent, borderwidth = 1, relief = "solid")
         # To store the list of ports
         self.file_list = []
+        self.init = parent.initialize
 
         # Widgets
         self.listbox_usb = tk.Listbox(self, selectmode ='single',
@@ -34,10 +35,10 @@ class USBFrame(tk.Frame):
         index = self.listbox_usb.curselection()[0] # a tuple is returned
         serial_port = self.file_list[index]
         print("You have selected: " + serial_port.device)
+        self.labelText.set(serial_port.device)
         try:
             s.port = serial_port.device
             s.open()
-            self.labelText.set(serial_port.device)
         except:
             # Indicate that something went wrong
             # Label is now shown (in red)
@@ -46,3 +47,6 @@ class USBFrame(tk.Frame):
             print(s.name + " open")
             # Label is now shown (in green)
             self.con_label.config(bg="green")
+            # Initialize the MCU to current GUI values
+            print("Init... ")
+            self.init()

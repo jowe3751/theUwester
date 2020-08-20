@@ -58,6 +58,7 @@ class CommandFrame(tk.Frame):
         self.freq_value_label.config(bg="red")
 
     def to_uwester(self):
+        self.freq_value_label.config(bg="red")
         # Send the frequency to microcontroller
         # Sends two messages, one to indicate that we are sending a frequency
         # the other to specify what frequency

@@ -45,6 +45,18 @@ class App(tk.Tk):
         tr.setDaemon(True)
         tr.start()
 
+    def initialize(self):
+        self.graph.paused = True
+        time.sleep(1)
+        # Init frequency current value in GUI
+        print("init freq...")
+        self.cmd.to_uwester()
+        # Init time/div to current value in GUI
+        print("init time...")
+        self.graph.to_uwester()
+        # Display values again
+        self.graph.paused = False
+
     def read(self): # function called from separate thread
 
         # wait for main thread to open serial connection
@@ -54,11 +66,6 @@ class App(tk.Tk):
         # Toggle needed because of reasons on OS X - Yosemite
         s.close()
         s.open()
-
-        # Init time/div to 1ms
-        self.graph.to_uwester()
-        # Init frequency to 1kHz
-        self.cmd.to_uwester()
 
         # remove potential stuff in buffer
         s.reset_input_buffer()
@@ -73,7 +80,6 @@ class App(tk.Tk):
                     # ["frequency_ok", "\r\n"]
                     # ["time_ok", "\r\n"]
                     # ["123", "234", ...,  "\r\n"]
-
                     if (str[0] == "frequency_ok"):
                         print("frequency_ok")
                         self.cmd.freq_value_label.config(bg="green")
@@ -102,6 +108,7 @@ class App(tk.Tk):
 
                 except:
                     print("Error reading from MCU")
+
 if __name__ == '__main__':
     app = App()
     app.mainloop()
