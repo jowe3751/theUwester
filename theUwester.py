@@ -1,4 +1,5 @@
 import math
+import tkinter.filedialog
 import tkinter as tk
 from tkinter import ttk
 import threading
@@ -10,6 +11,7 @@ from settings import s
 from commandFrame import CommandFrame
 from graphFrame import GraphFrame
 from usbFrame import USBFrame
+from PIL import ImageGrab
 
 class App(tk.Tk):
     def __init__(self):
@@ -19,6 +21,7 @@ class App(tk.Tk):
         # Menu
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Save Image",command=self.save_img)
         filemenu.add_command(label="Quit",command=self.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         self.config(menu=menubar)
@@ -36,8 +39,17 @@ class App(tk.Tk):
         # Start separate thread to read from MCU
         self.start_read()
 
-    def exit_program(self):
-        print("Good bye")
+    def save_img(self):
+        filename = tk.filedialog.asksaveasfilename(title="Save png File",
+            filetypes = (("png files","*.png"),("all files","*.*")),
+            defaultextension=".png")
+        if filename:
+            widget = self.graph
+            x=self.winfo_rootx()+widget.winfo_x()
+            y=self.winfo_rooty()+widget.winfo_y()
+            x1=x+widget.winfo_width()
+            y1=y+widget.winfo_height()
+            ImageGrab.grab().crop((x,y,x1,y1)).save(filename)
 
     def start_read(self):
         # Start a new thread and read values
