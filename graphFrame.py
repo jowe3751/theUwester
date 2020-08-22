@@ -114,7 +114,8 @@ class GraphFrame(tk.Frame):
 
         # Bind mouse functions
         self.can.bind("<Button-1>", self.mouse_lh)
-        self.can.bind("<Button-3>", self.mouse_rh)
+        self.can.bind("<Button-2>", self.mouse_rh) # For OSX
+        self.can.bind("<Button-3>", self.mouse_rh) # Standard right click
         # Init vars for measurements
         # First click measures voltage, second click measures time
         # between x1 and x2
