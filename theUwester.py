@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
+import pyscreenshot
 
 # Global variable
 from settings import s
@@ -11,7 +12,6 @@ from settings import s
 from commandFrame import CommandFrame
 from graphFrame import GraphFrame
 from usbFrame import USBFrame
-from PIL import ImageGrab
 
 class App(tk.Tk):
     def __init__(self):
@@ -40,16 +40,15 @@ class App(tk.Tk):
         self.start_read()
 
     def save_img(self):
-        filename = tk.filedialog.asksaveasfilename(title="Save png File",
+        filename = tk.filedialog.asksaveasfilename(title="Save File",
             filetypes = (("png files","*.png"),("all files","*.*")),
             defaultextension=".png")
         if filename:
-            widget = self.graph
-            x=self.winfo_rootx()+widget.winfo_x()
-            y=self.winfo_rooty()+widget.winfo_y()
-            x1=x+widget.winfo_width()
-            y1=y+widget.winfo_height()
-            ImageGrab.grab().crop((x,y,x1,y1)).save(filename)
+            x=self.winfo_rootx()
+            y=self.winfo_rooty()
+            x1=x+self.winfo_width()
+            y1=y+self.winfo_height()
+            pyscreenshot.grab(bbox=(x,y,x1,y1)).save(filename)
 
     def start_read(self):
         # Start a new thread and read values
