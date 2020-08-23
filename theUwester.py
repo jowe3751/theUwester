@@ -48,6 +48,7 @@ class App(tk.Tk):
             y=self.winfo_rooty()
             x1=x+self.winfo_width()
             y1=y+self.winfo_height()
+            time.sleep(0.5) # So that popup has time to close
             pyscreenshot.grab(bbox=(x,y,x1,y1)).save(filename)
 
     def start_read(self):
