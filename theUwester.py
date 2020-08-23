@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
-import pyscreenshot
 
 # Global variable
 from settings import s
@@ -21,7 +20,11 @@ class App(tk.Tk):
         # Menu
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Save Image",command=self.save_img)
+        try: # Menu option only available if package installed
+            import pyscreenshot
+            filemenu.add_command(label="Save Image",command=self.save_img)
+        except ImportError:
+            pass
         filemenu.add_command(label="Quit",command=self.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         self.config(menu=menubar)
