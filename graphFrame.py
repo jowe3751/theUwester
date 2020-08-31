@@ -116,6 +116,9 @@ class GraphFrame(tk.Frame):
         self.can.bind("<Button-1>", self.mouse_lh)
         self.can.bind("<Button-2>", self.mouse_rh) # For OSX
         self.can.bind("<Button-3>", self.mouse_rh) # Standard right click
+        self.can.bind("<Button-4>", self.mouse_scroll) # X11
+        self.can.bind("<Button-5>", self.mouse_scroll) # X11
+        self.can.bind("<MouseWheel>", self.mouse_scroll) # OSX & Windows
         # Init vars for measurements
         # First click measures voltage, second click measures time
         # between x1 and x2
@@ -171,9 +174,10 @@ class GraphFrame(tk.Frame):
             volt_val = round(volt_val, 2)
             self.volt.set(str(volt_val) + " v")
             # draw vertical line 1
-            self.can.delete("dt") # clear previous measurement
+            self.can.delete("x1") # clear previous measurement
+            self.can.delete("x2") # clear previous measurement
             self.can.create_line(self.x1, 0, self.x1, self.height,
-                fill='#FF0000', tags="dt")
+                fill='#FF0000', tags="x1")
             self.can.create_line(0, event.y, self.width, event.y,
                 fill='#FF0000', tags="volt")
             self.firstClick = False
@@ -182,25 +186,46 @@ class GraphFrame(tk.Frame):
             self.volt.set(" ")
             self.x2 = event.x
             self.can.create_line(self.x2, 0, self.x2, self.height,
-                fill='#FF0000', tags="dt")
+                fill='#FF0000', tags="x2")
             self.firstClick = True
-            val = abs(self.x1-self.x2)
-            val = val * self.timedivs[self.period_index] / 100
-            val = val * 1000 # to ms
-            val = round(val, 5)
-            if val < 1: # present as us
-                val *= 1000
-                val = round(val, 5)
-                self.time.set(str(val) + " us")
-            else:
-                self.time.set(str(val) + " ms")
+            self.calculate_dt()
 
     def mouse_rh(self, event):
-            self.can.delete("dt") # clear previous measurement
-            self.can.delete("volt") # clear previous measurement
-            self.volt.set("")
-            self.time.set("")
-            self.firstClick = True
+        self.can.delete("x1", "x2", "volt") # clear previous measurement
+        self.volt.set("")
+        self.time.set("")
+        self.firstClick = True
+
+    def mouse_scroll(self, event):
+        if self.firstClick == False:
+            if(event.delta > 0): # scroll up
+                self.x1 -= 1
+            else: #scroll down
+                self.x1 += 1
+            self.can.delete("x1") # clear previous measurement
+            self.can.create_line(self.x1, 0, self.x1, self.height,
+                fill='#FF0000', tags="x1")
+        else:
+            if(event.delta > 0): # scroll up
+                self.x2 -= 1
+            else:
+                self.x2 += 1
+            self.can.delete("x2") # clear previous measurement
+            self.can.create_line(self.x2, 0, self.x2, self.height,
+                fill='#FF0000', tags="x2")
+            self.calculate_dt()
+
+    def calculate_dt(self):
+        val = abs(self.x1-self.x2)
+        val = val * self.timedivs[self.period_index] / 100
+        val = val * 1000 # to ms
+        val = round(val, 5)
+        if val < 1: # present as us
+            val *= 1000
+            val = round(val, 5)
+            self.time.set(str(val) + " us")
+        else:
+            self.time.set(str(val) + " ms")
 
     def to_uwester(self):
         self.time_choice.config(bg="red")
