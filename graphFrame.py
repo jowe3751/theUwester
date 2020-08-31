@@ -116,8 +116,8 @@ class GraphFrame(tk.Frame):
         self.can.bind("<Button-1>", self.mouse_lh)
         self.can.bind("<Button-2>", self.mouse_rh) # For OSX
         self.can.bind("<Button-3>", self.mouse_rh) # Standard right click
-        self.can.bind("<Button-4>", self.mouse_scroll) # X11
-        self.can.bind("<Button-5>", self.mouse_scroll) # X11
+        self.can.bind("<Button-4>", self.mouse_scrollup) # X11
+        self.can.bind("<Button-5>", self.mouse_scrolldown) # X11
         self.can.bind("<MouseWheel>", self.mouse_scroll) # OSX & Windows
         # Init vars for measurements
         # First click measures voltage, second click measures time
@@ -196,6 +196,32 @@ class GraphFrame(tk.Frame):
         self.time.set("")
         self.firstClick = True
 
+    def mouse_scrollup(self, event):
+        if self.firstClick == False:
+            self.x1 -= 1
+            self.can.delete("x1") # clear previous measurement
+            self.can.create_line(self.x1, 0, self.x1, self.height,
+                fill='#FF0000', tags="x1")
+        else:
+            self.x2 -= 1
+            self.can.delete("x2") # clear previous measurement
+            self.can.create_line(self.x2, 0, self.x2, self.height,
+            fill='#FF0000', tags="x2")
+            self.calculate_dt()
+
+    def mouse_scrolldown(self, event):
+        if self.firstClick == False:
+            self.x1 += 1
+            self.can.delete("x1") # clear previous measurement
+            self.can.create_line(self.x1, 0, self.x1, self.height,
+                fill='#FF0000', tags="x1")
+        else:
+            self.x2 += 1
+            self.can.delete("x2") # clear previous measurement
+            self.can.create_line(self.x2, 0, self.x2, self.height,
+            fill='#FF0000', tags="x2")
+            self.calculate_dt()
+
     def mouse_scroll(self, event):
         if self.firstClick == False:
             if(event.delta > 0): # scroll up
@@ -208,7 +234,7 @@ class GraphFrame(tk.Frame):
         else:
             if(event.delta > 0): # scroll up
                 self.x2 -= 1
-            else:
+            else: # scroll down
                 self.x2 += 1
             self.can.delete("x2") # clear previous measurement
             self.can.create_line(self.x2, 0, self.x2, self.height,
