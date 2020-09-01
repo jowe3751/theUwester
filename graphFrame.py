@@ -257,19 +257,18 @@ class GraphFrame(tk.Frame):
         self.time_choice.config(bg="red")
         self.increment = 1
         period_to_send = self.periods[self.period_index]
-        # if less than 50us
-        if(self.period_index < 3):
+        # if less than 20us
+        if(self.period_index < 2):
             # thats too fast for ADC so:
-            # send 50us to MCU
-            period_to_send = self.periods[3]
+            # send 20us to MCU
+            period_to_send = self.periods[2]
             # and fix resolution in software instead
-            # nice onliner for this?
-            if self.period_index == 2:
-                self.increment = 2.5
-            elif self.period_index == 1:
-                self.increment = 5
+            if self.period_index == 1:
+                self.increment = 2
             elif self.period_index == 0:
-                self.increment = 10
+                self.increment = 4
+            # Simplified
+            # self.increment = 4 - 2 * self.period_index
         # Send the multiplier
         try:
             s.write(b'TIME')
