@@ -119,6 +119,9 @@ class GraphFrame(tk.Frame):
         self.can.bind("<Button-4>", self.mouse_scrollup) # X11
         self.can.bind("<Button-5>", self.mouse_scrolldown) # X11
         self.can.bind("<MouseWheel>", self.mouse_scroll) # OSX & Windows
+        self.can.bind("<Control-MouseWheel>", self.mouse_ctrl_scroll) # OSX & Windows
+        self.can.bind("<Control-Button-4>", self.mouse_ctrl_scrollup) # X11
+        self.can.bind("<Control-Button-5>", self.mouse_ctrl_scrolldown) # X11
         # Init vars for measurements
         # First click measures voltage, second click measures time
         # between x1 and x2
@@ -170,15 +173,16 @@ class GraphFrame(tk.Frame):
         if self.firstClick == True:
             self.time.set("")
             self.x1 = event.x
-            volt_val = (self.height-event.y) / self.height * 3.3
+            self.volt_measure = event.y
+            volt_val = (self.height-self.volt_measure) / self.height * 3.3
             volt_val = round(volt_val, 2)
             self.volt.set(str(volt_val) + " v")
-            # draw vertical line 1
             self.can.delete("x1") # clear previous measurement
             self.can.delete("x2") # clear previous measurement
+            # draw vertical line 1
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
-            self.can.create_line(0, event.y, self.width, event.y,
+            self.can.create_line(0, self.volt_measure, self.width, self.volt_measure,
                 fill='#FF0000', tags="volt")
             self.firstClick = False
         else:
@@ -240,6 +244,34 @@ class GraphFrame(tk.Frame):
             self.can.create_line(self.x2, 0, self.x2, self.height,
                 fill='#FF0000', tags="x2")
             self.calculate_dt()
+
+    def mouse_ctrl_scroll(self, event):
+        if self.firstClick == False:
+            if(event.delta > 0): # scroll up
+                self.volt_measure -= 1
+            else:
+                self.volt_measure += 1
+            self.calculate_volt()
+
+    def mouse_ctrl_scrollup(self, event):
+        if self.firstClick == False:
+            self.volt_measure -= 1
+            self.calculate_volt()
+
+    def mouse_ctrl_scrolldown(self, event):
+        if self.firstClick == False:
+            self.volt_measure += 1
+            self.calculate_volt()
+
+    def calculate_volt(self):
+        volt_val = (self.height-self.volt_measure) / self.height * 3.3
+        volt_val = round(volt_val, 2)
+        self.volt.set(str(volt_val) + " v")
+        # redraw vertical line 1
+        self.can.delete("volt") # clear previous measurement
+        self.can.create_line(0, self.volt_measure, self.width, self.volt_measure,
+        fill='#FF0000', tags="volt")
+
 
     def calculate_dt(self):
         val = abs(self.x1-self.x2)
