@@ -35,8 +35,8 @@ class GraphFrame(tk.Frame):
         self.channel_select = tk.IntVar() # 1, 2 or 3 (Both)
 
         # Canvas
-        self.can = tk.Canvas(self, width = self.width, height = self.height,
-                                bg = '#000000')
+        self.can = tk.Canvas(self, highlightthickness=0, borderwidth=0,
+            width = self.width, height = self.height+1, bg = '#000000')
         # Draw vertical guide lines
         for x in range(0, 1000, 100):
             self.can.create_line(x, 0, x, self.height, fill='#808080')
@@ -172,18 +172,14 @@ class GraphFrame(tk.Frame):
     def mouse_lh(self, event):
         if self.firstClick == True:
             self.time.set("")
-            self.x1 = event.x
-            self.volt_measure = event.y
-            volt_val = (self.height-self.volt_measure) / self.height * 3.3
-            volt_val = round(volt_val, 2)
-            self.volt.set(str(volt_val) + " v")
             self.can.delete("x1") # clear previous measurement
             self.can.delete("x2") # clear previous measurement
-            # draw vertical line 1
+            self.x1 = event.x
+            self.volt_measure = event.y
+            # redraw first vertical line
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
-            self.can.create_line(0, self.volt_measure, self.width, self.volt_measure,
-                fill='#FF0000', tags="volt")
+            self.calculate_volt()
             self.firstClick = False
         else:
             self.can.delete("volt") # clear previous measurement
@@ -264,7 +260,9 @@ class GraphFrame(tk.Frame):
             self.calculate_volt()
 
     def calculate_volt(self):
-        volt_val = (self.height-self.volt_measure) / self.height * 3.3
+        # Translate from 0V - 3.3V --> -4V - +4V
+        volt_val = self.volt_measure - self.height / 2
+        volt_val = volt_val * - 4 / (self.height//2)
         volt_val = round(volt_val, 2)
         self.volt.set(str(volt_val) + " v")
         # redraw vertical line 1

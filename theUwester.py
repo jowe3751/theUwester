@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
+import serial
 import pyscreenshot
 
 # Global variable
@@ -118,6 +119,10 @@ class App(tk.Tk):
                             except:
                                 print("error in read()")
 
+                except serial.SerialException:
+                    # in case cable hot-unplugged
+                    print("Check cable connection, shutting down application")
+                    self.quit()
                 except:
                     print("Error reading from MCU")
 
