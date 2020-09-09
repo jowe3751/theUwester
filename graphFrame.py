@@ -7,14 +7,19 @@ class GraphFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, borderwidth = 1, relief = "solid")
 
+        # To access frequency from commandFrame
+        self.uwester = parent
+
         # Time per div in seconds
         self.timedivs = [0.000005, 0.00001, 0.00002, 0.00005, 0.0001,
                     0.0002, 0.0005, 0.001, 0.002, 0.005,
                     0.01, 0.02, 0.05]
+
         # Corresponding values shown in GUI
         self.timedivs_text = ["5us", "10us", "20us", "50us", "100us",
                     "200us", "500us", "1ms", "2ms", "5ms",
                     "10ms", "20ms", "50ms"]
+
         # Calculated values for ADC timer periods by MCU using a 80 MHz clock
         self.periods = [x*800000//1 for x in self.timedivs]
         self.period_index = 7 # MCU is initialized to 1ms after reset
@@ -28,10 +33,12 @@ class GraphFrame(tk.Frame):
         self.time_text.set(str(self.timedivs_text[7])) # Display to user
         self.offset = tk.IntVar()
         # Measurement values
-        self.time = tk.StringVar()
         self.volt = tk.StringVar()
-        self.time.set("")
+        self.time = tk.StringVar()
+        self.phi = tk.StringVar()
         self.volt.set("")
+        self.time.set("")
+        self.phi.set("")
         self.channel_select = tk.IntVar() # 1, 2 or 3 (Both)
 
         # Canvas
@@ -86,13 +93,17 @@ class GraphFrame(tk.Frame):
         measure_header_label = tk.Label(measure_frm,font = "verdana 8 bold", text="MEASUREMENTS");
         measure_volt_label = tk.Label(measure_frm, text="Voltage: ");
         measure_dt_label = tk.Label(measure_frm, text="dt: ");
-        measure_volt_value = tk.Label(measure_frm, width=6, textvariable=self.volt);
-        measure_dt_value = tk.Label(measure_frm, width=6, textvariable=self.time);
+        measure_phi_label = tk.Label(measure_frm, text="phi: ");
+        measure_volt_value = tk.Label(measure_frm, width=10, textvariable=self.volt);
+        measure_dt_value = tk.Label(measure_frm, width=10, textvariable=self.time);
+        measure_phi_value = tk.Label(measure_frm, width=10, textvariable=self.phi);
         measure_header_label.grid(row=0, column=0, columnspan=2)
         measure_volt_label.grid(row=1, column=0, sticky=(tk.W))
         measure_volt_value.grid(row=1, column=1, sticky=(tk.W))
         measure_dt_label.grid(row=2, column=0, sticky=(tk.W))
         measure_dt_value.grid(row=2, column=1, sticky=(tk.W))
+        measure_phi_label.grid(row=3, column=0, sticky=(tk.W))
+        measure_phi_value.grid(row=3, column=1, sticky=(tk.W))
 
         # Channel select frame
         chsel_frm = tk.Frame(self, borderwidth=1, relief="solid")
@@ -125,12 +136,13 @@ class GraphFrame(tk.Frame):
         # Init vars for measurements
         # First click measures voltage, second click measures time
         # between x1 and x2
-        self.firstClick = True
+        self.clickedOnce = False
+        self.clickedTwice = False
         self.x1 = 0
         self.x2 = 0
 
     def plot(self, *args):
-        palette = ['#FFFF00','#0000FF']
+        palette = ['#FFFF00','#00BFFF']
         if self.x < self.width + self.offset.get():
             for (channel, y) in enumerate(args):
                 y = args[channel]
@@ -170,8 +182,9 @@ class GraphFrame(tk.Frame):
         self.time_choice.config(bg="red")
 
     def mouse_lh(self, event):
-        if self.firstClick == True:
+        if self.clickedOnce == False:
             self.time.set("")
+            self.phi.set("")
             self.can.delete("x1") # clear previous measurement
             self.can.delete("x2") # clear previous measurement
             self.x1 = event.x
@@ -180,29 +193,34 @@ class GraphFrame(tk.Frame):
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
             self.calculate_volt()
-            self.firstClick = False
-        else:
+            self.clickedOnce = True
+            self.clickedTwice = False
+
+        elif self.clickedOnce == True:
             self.can.delete("volt") # clear previous measurement
             self.volt.set(" ")
             self.x2 = event.x
             self.can.create_line(self.x2, 0, self.x2, self.height,
                 fill='#FF0000', tags="x2")
-            self.firstClick = True
+            self.clickedOnce = False
+            self.clickedTwice = True
             self.calculate_dt()
 
     def mouse_rh(self, event):
         self.can.delete("x1", "x2", "volt") # clear previous measurement
         self.volt.set("")
         self.time.set("")
-        self.firstClick = True
+        self.phi.set("")
+        self.clickedOnce = False
+        self.clickedTwice = False
 
     def mouse_scrollup(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             self.x1 -= 1
             self.can.delete("x1") # clear previous measurement
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
-        else:
+        elif self.clickedTwice == True:
             self.x2 -= 1
             self.can.delete("x2") # clear previous measurement
             self.can.create_line(self.x2, 0, self.x2, self.height,
@@ -210,12 +228,12 @@ class GraphFrame(tk.Frame):
             self.calculate_dt()
 
     def mouse_scrolldown(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             self.x1 += 1
             self.can.delete("x1") # clear previous measurement
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
-        else:
+        elif self.clickedTwice == True:
             self.x2 += 1
             self.can.delete("x2") # clear previous measurement
             self.can.create_line(self.x2, 0, self.x2, self.height,
@@ -223,7 +241,7 @@ class GraphFrame(tk.Frame):
             self.calculate_dt()
 
     def mouse_scroll(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             if(event.delta > 0): # scroll up
                 self.x1 -= 1
             else: #scroll down
@@ -231,7 +249,7 @@ class GraphFrame(tk.Frame):
             self.can.delete("x1") # clear previous measurement
             self.can.create_line(self.x1, 0, self.x1, self.height,
                 fill='#FF0000', tags="x1")
-        else:
+        elif self.clickedTwice == True:
             if(event.delta > 0): # scroll up
                 self.x2 -= 1
             else: # scroll down
@@ -242,7 +260,7 @@ class GraphFrame(tk.Frame):
             self.calculate_dt()
 
     def mouse_ctrl_scroll(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             if(event.delta > 0): # scroll up
                 self.volt_measure -= 1
             else:
@@ -250,12 +268,12 @@ class GraphFrame(tk.Frame):
             self.calculate_volt()
 
     def mouse_ctrl_scrollup(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             self.volt_measure -= 1
             self.calculate_volt()
 
     def mouse_ctrl_scrolldown(self, event):
-        if self.firstClick == False:
+        if self.clickedOnce == True:
             self.volt_measure += 1
             self.calculate_volt()
 
@@ -272,16 +290,21 @@ class GraphFrame(tk.Frame):
 
 
     def calculate_dt(self):
-        val = abs(self.x1-self.x2)
-        val = val * self.timedivs[self.period_index] / 100
-        val = val * 1000 # to ms
-        val = round(val, 5)
-        if val < 1: # present as us
-            val *= 1000
-            val = round(val, 5)
-            self.time.set(str(val) + " us")
+        dt = self.x1-self.x2
+        dt = dt * self.timedivs[self.period_index] / 100
+        disp = abs(dt * 1000) # to ms
+        disp = round(disp, 5)
+        frequency = self.uwester.get_frequency()
+        #ang = 360 * f * dt
+        phi = 360 * frequency * dt
+        phi = round(phi, 2)
+        self.phi.set(str(phi) + " deg")
+        if disp < 1: # present as us
+            disp *= 1000
+            disp = round(disp, 5)
+            self.time.set(str(disp) + " us")
         else:
-            self.time.set(str(val) + " ms")
+            self.time.set(str(disp) + " ms")
 
     def to_uwester(self):
         self.time_choice.config(bg="red")

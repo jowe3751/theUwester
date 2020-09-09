@@ -52,6 +52,9 @@ class App(tk.Tk):
             time.sleep(0.5) # So that popup has time to close
             pyscreenshot.grab(bbox=(x,y,x1,y1)).save(filename)
 
+    def get_frequency(self):
+        return self.cmd.tuned_freq
+
     def start_read(self):
         # Start a new thread and read values
         tr = threading.Thread(target = self.read, args = ())
