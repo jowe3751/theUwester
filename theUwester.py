@@ -136,8 +136,8 @@ class App(tk.Tk):
         ch1 = l[::2]
         ch2 = l[1::2]
         # calculate vpp
-        #print("Vpp ch1:", round((max(ch1)-min(ch1))/4095*8, 2))
-        #print("Vpp ch2:", round((max(ch2)-min(ch2))/4095*8, 2))
+        # 4095 - Maximum value measured on ADC
+        # 8 - Maximum output range after amplification on PCB
         vppch1 = round((max(ch1)-min(ch1))/4095*8, 2)
         vppch2 = round((max(ch2)-min(ch2))/4095*8, 2)
         self.graph.update_vpp((vppch1, vppch2))
