@@ -36,9 +36,13 @@ class GraphFrame(tk.Frame):
         self.volt = tk.StringVar()
         self.time = tk.StringVar()
         self.phi = tk.StringVar()
+        self.vppch1 = tk.StringVar()
+        self.vppch2 = tk.StringVar()
         self.volt.set("")
         self.time.set("")
         self.phi.set("")
+        self.vppch1.set("")
+        self.vppch2.set("")
         self.channel_select = tk.IntVar() # 1, 2 or 3 (Both)
 
         # Canvas
@@ -93,10 +97,14 @@ class GraphFrame(tk.Frame):
         measure_header_label = tk.Label(measure_frm,font = "verdana 8 bold", text="MEASUREMENTS");
         measure_volt_label = tk.Label(measure_frm, text="Voltage: ");
         measure_dt_label = tk.Label(measure_frm, text="dt: ");
-        measure_phi_label = tk.Label(measure_frm, text="phi: ");
+        measure_phi_label = tk.Label(measure_frm, text="phs: ");
+        measure_vppch1_label = tk.Label(measure_frm, text="Vpp CH1: ");
+        measure_vppch2_label = tk.Label(measure_frm, text="Vpp CH2: ");
         measure_volt_value = tk.Label(measure_frm, width=10, textvariable=self.volt);
         measure_dt_value = tk.Label(measure_frm, width=10, textvariable=self.time);
         measure_phi_value = tk.Label(measure_frm, width=10, textvariable=self.phi);
+        measure_vppch1_value = tk.Label(measure_frm, width=10, textvariable=self.vppch1);
+        measure_vppch2_value = tk.Label(measure_frm, width=10, textvariable=self.vppch2);
         measure_header_label.grid(row=0, column=0, columnspan=2)
         measure_volt_label.grid(row=1, column=0, sticky=(tk.W))
         measure_volt_value.grid(row=1, column=1, sticky=(tk.W))
@@ -104,6 +112,10 @@ class GraphFrame(tk.Frame):
         measure_dt_value.grid(row=2, column=1, sticky=(tk.W))
         measure_phi_label.grid(row=3, column=0, sticky=(tk.W))
         measure_phi_value.grid(row=3, column=1, sticky=(tk.W))
+        measure_vppch1_label.grid(row=4, column=0, sticky=(tk.W))
+        measure_vppch1_value.grid(row=4, column=1, sticky=(tk.W))
+        measure_vppch2_label.grid(row=5, column=0, sticky=(tk.W))
+        measure_vppch2_value.grid(row=5, column=1, sticky=(tk.W))
 
         # Channel select frame
         chsel_frm = tk.Frame(self, borderwidth=1, relief="solid")
@@ -305,6 +317,11 @@ class GraphFrame(tk.Frame):
             self.time.set(str(disp) + " us")
         else:
             self.time.set(str(disp) + " ms")
+
+    def update_vpp(self, vpp_values):
+        ch1, ch2 = vpp_values
+        self.vppch1.set(str(ch1) + " V")
+        self.vppch2.set(str(ch2) + " V")
 
     def to_uwester(self):
         self.time_choice.config(bg="red")

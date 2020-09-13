@@ -103,21 +103,23 @@ class App(tk.Tk):
                         print("time_ok")
                         self.graph.time_choice.config(bg="green")
                     elif (not self.graph.paused):
-                        self.graph.can.delete("read_values") # clear screen
+                        str = str[:-1:] # remove "\r\n"
+                        values = list(map(int, str)) # convert string to int
+                        self.calc_vpp(values)
+                        self.graph.can.delete("read_values") # clear previous plot
                         self.graph.x = 0
-                        # len(str)-2 : dont try to plot "\r\n"
-                        for i in range(0, len(str)-2, 2):
+                        for i in range(0, len(values)-1, 2):
                             try:
                                 # option to filter out channel in GUI
                                 if self.graph.channel_select.get() == 1:
-                                    y1 = int(str[i])/4095 * self.graph.height
+                                    y1 = values[i]/4095 * self.graph.height
                                     self.graph.plot(y1, 0)
                                 elif self.graph.channel_select.get() == 2:
-                                    y2 = int(str[i+1])/4095 * self.graph.height
+                                    y2 = values[i+1]/4095 * self.graph.height
                                     self.graph.plot(0, y2)
                                 else:
-                                    y1 = int(str[i])/4095 * self.graph.height
-                                    y2 = int(str[i+1])/4095 * self.graph.height
+                                    y1 = values[i]/4095 * self.graph.height
+                                    y2 = values[i+1]/4095 * self.graph.height
                                     self.graph.plot(y1, y2)
                             except:
                                 print("error in read()")
@@ -128,6 +130,17 @@ class App(tk.Tk):
                     self.quit()
                 except:
                     print("Error reading from MCU")
+
+    def calc_vpp(self, l):
+        # separate channel 1 from channel 2
+        ch1 = l[::2]
+        ch2 = l[1::2]
+        # calculate vpp
+        #print("Vpp ch1:", round((max(ch1)-min(ch1))/4095*8, 2))
+        #print("Vpp ch2:", round((max(ch2)-min(ch2))/4095*8, 2))
+        vppch1 = round((max(ch1)-min(ch1))/4095*8, 2)
+        vppch2 = round((max(ch2)-min(ch2))/4095*8, 2)
+        self.graph.update_vpp((vppch1, vppch2))
 
 if __name__ == '__main__':
     app = App()
