@@ -157,7 +157,7 @@ class GraphFrame(tk.Frame):
         palette = ['#FFFF00','#00BFFF']
         if self.x < self.width + self.offset.get():
             for (channel, y) in enumerate(args):
-                y = args[channel]
+                y = args[channel]/4095*self.height
                 if self.x == 0:
                     self.y_last[channel] = y
 

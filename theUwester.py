@@ -112,15 +112,11 @@ class App(tk.Tk):
                             try:
                                 # option to filter out channel in GUI
                                 if self.graph.channel_select.get() == 1:
-                                    y1 = values[i]/4095 * self.graph.height
-                                    self.graph.plot(y1, 0)
+                                    self.graph.plot(values[i], 0)
                                 elif self.graph.channel_select.get() == 2:
-                                    y2 = values[i+1]/4095 * self.graph.height
-                                    self.graph.plot(0, y2)
+                                    self.graph.plot(0, values[i+1])
                                 else:
-                                    y1 = values[i]/4095 * self.graph.height
-                                    y2 = values[i+1]/4095 * self.graph.height
-                                    self.graph.plot(y1, y2)
+                                    self.graph.plot(values[i], values[i+1])
                             except:
                                 print("error in read()")
 
