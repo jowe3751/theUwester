@@ -157,6 +157,7 @@ class GraphFrame(tk.Frame):
         palette = ['#FFFF00','#00BFFF']
         if self.x < self.width + self.offset.get():
             for (channel, y) in enumerate(args):
+                # change y-value from ADC range [0,4095] to graph window size (self.height)
                 y = args[channel]/4095*self.height
                 if self.x == 0:
                     self.y_last[channel] = y

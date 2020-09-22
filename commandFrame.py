@@ -37,6 +37,13 @@ class CommandFrame(tk.Frame):
         led_btn_on.grid(row=0, column=0, sticky=tk.W)
         led_btn_off.grid(row=0, column=1, sticky=tk.W)
 
+        # Waveform controls
+        waveform_frame = tk.Frame(self, borderwidth=1, relief="solid")
+        waveform_btn_on = tk.Button(waveform_frame, text="SINE", command=self.sine)
+        waveform_btn_off = tk.Button(waveform_frame, text="SQUARE", command=self.square)
+        waveform_btn_on.grid(row=0, column=0, sticky=tk.W)
+        waveform_btn_off.grid(row=0, column=1, sticky=tk.W)
+
         # Placement
         freq_label_1.grid(row=0, column=0, sticky=(tk.W))
         freq_label_2.grid(row=1, column=0, sticky=(tk.W))
@@ -47,6 +54,7 @@ class CommandFrame(tk.Frame):
         self.freq_value_label.grid(row=0,column=2, sticky="W, S", padx=10)
         button.grid(row=1, column=2, sticky="W, N", padx=10)
         led_frame.grid(row=3, column=0, padx=5, pady=5)
+        waveform_frame.grid(row=3, column=1, padx=5, pady=5)
 
     def to_label(self, val):
         self.tuned_freq = self.freq_val_1.get() * 1000 + \
@@ -73,3 +81,9 @@ class CommandFrame(tk.Frame):
 
     def led_off(self):
         s.write(b'LD2 OFF')
+
+    def sine(self):
+        s.write(b'SINE')
+
+    def square(self):
+        s.write(b'SQUARE')
